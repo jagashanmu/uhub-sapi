@@ -16,7 +16,37 @@
 		<app.runtime>4.8.0</app.runtime>
 		<mule.maven.plugin.version>4.3.0</mule.maven.plugin.version>
 	</properties>
-
+    	<profiles>
+		<profile>
+			<id>DEV</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.mule.tools.maven</groupId>
+						<artifactId>mule-maven-plugin</artifactId>
+						<version>${mule.maven.plugin.version}</version>
+						<extensions>true</extensions>
+						<configuration>
+							<cloudhub2Deployment>
+								<applicationName>product-api1</applicationName>
+								<environment>DEV</environment>
+								<target>Cloudhub-US-East-2</target>
+								<replicas>1</replicas>
+								<vCores>0.1</vCores>
+								<businessGroupId>652204b7-17e6-419a-9d97-61824f30ffcf</businessGroupId>
+								<properties>
+									<env>DEV</env>
+									<api.id>20143967</api.id>
+									<anypoint.platform.client_id>c0809d07cd954126bfd828b0e0815a24 </anypoint.platform.client_id>
+									<anypoint.platform.client_secret>4273a1F5A7354E439448aeFd58614f9D </anypoint.platform.client_secret>
+								</properties>
+							</cloudhub2Deployment>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 	<build>
 		<plugins>
 			<plugin>
