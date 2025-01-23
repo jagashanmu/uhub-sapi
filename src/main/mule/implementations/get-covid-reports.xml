@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                          http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+                          http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+
+  <flow name="get:\reports:uhub-sapi-config">
+
+    <!-- Corrected set-variable syntax with single quotes for default value -->
+    <set-variable value="#[attributes.headers.'x-correlation-id' default '']"
+                  doc:name="Set correlationId"
+                  doc:id="1b3e0ec1-d5c4-4b87-8fc3-3cb104ffa6e6"
+                  variableName="correlationId"/>
+
+    <logger level="INFO" 
+            doc:name="Start Log" 
+            doc:id="1879b8af-f34f-493b-b2e4-8ca2c6b8404c"
+            message="transactionId: #[vars.transactionId]], correlationId: #[vars.correlationId], message: Started get reports flow and received query parameter is - #[attributes.queryParams.state]"/>
+
+    <ee:transform doc:name="Prepare DynamicQuery" 
+                  doc:id="2185abf4-13eb-4c78-a89b-5aa5b64e7f9a">
+      <ee:message> </ee:message>
+      <ee:variables>
+        <ee:set-variable variableName="reportsDynamicQuery">
+          <![CDATA[
+            if(!isEmpty(attributes.queryParams.state)) 
+              ("select count(*) as count, case_type, state from cvd_case_master where state = '" ++ upper(attributes.queryParams.state) ++ "' group by case_type, state")
+            else 
+              ("select count(*) as count, case_type, state from cvd_case_master group by case_type, state")
+          ]]>
+        </ee:set-variable>
+      </ee:variables>
+    </ee:transform>
+
+    <flow-ref doc:name="fetch-case-reports-sub-flow" 
+              doc:id="d2862924-1b25-4ea2-85cf-4b998b8ebc43" 
+              name="fetch-case-reports-sub-flow"/>
+
+    <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" 
+                  xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd"
+                  doc:name="Prepare Response">
+      <ee:message>
+        <ee:set-payload>
+          <![CDATA[
+            %dw 2.0
+            output application/json
+            fun vaccinatedByState(state) = 
+              (payload filter(($.STATE == state as String) and ($.CASE_TYPE == "vaccinated")) map { COUNT: $.COUNT })[0]
+            ---
+            ((payload groupBy($.STATE) mapObject { caseReports: { 
+              state: $$, 
+              reports: { 
+                total: ($.COUNT reduce $ + $$) - (vaccinatedByState($$).COUNT as Number default 0), 
+                ($ orderBy($.CASE_TYPE) map { ($.CASE_TYPE): $.COUNT }) 
+              } 
+            } }).*caseReports) default []
+          ]]>
+        </ee:set-payload>
+      </ee:message>
+    </ee:transform>
+
+    <logger level="INFO" 
+            doc:name="End Log" 
+            doc:id="15163277-200c-4167-80b5-62a01256769f" 
+            message="transactionID: #[vars.transactionId]], correlationID: #[vars.correlationId], message: Completed get reports flow, payload: #[payload]"/>
+
+  </flow>
+
+</mule>

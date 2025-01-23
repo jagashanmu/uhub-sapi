@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file"
+      xmlns:db="http://www.mulesoft.org/schema/mule/db"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                          http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+                          http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+                          http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+
+  <file:config name="File_Config" doc:name="File Config" doc:id="4d9e5855-827e-47f6-84cb-399535e3a384">
+    <file:connection workingDir="C:\Users\jaga\Downloads\git-bash"/>
+  </file:config>
+
+  <ee:object-store-caching-strategy name="Caching_Strategy1" doc:name="Caching Strategy" doc:id="efb43a15-14bb-4d52-8ab9-f683ee1cfcf0" />
+	<flow name="get:\cases\(nationalID):uhub-sapi-config">
+    <set-variable value="#[attributes.headers.'x-correlation-id' default '']"
+                  doc:name="Set correlationId"
+                  doc:id="6e1f25a5-cffe-4ad9-bf1b-220c5063d284"
+                  variableName="correlationId"/>
+    <logger level="INFO"
+            doc:name="Start Log"
+            doc:id="259c5bda-a21d-4497-ae8a-378dbe1a934c"
+            message="transactionID: #[vars.transactionId], correlationID: #[vars.correlationId], message: Started get covid case by national id flow, payload: #[payload]"/>
+    
+    <ee:cache doc:name="Cache" doc:id="99103b7c-9892-4928-bb2e-6ff1256cf3b7" cachingStrategy-ref="Caching_Strategy1">
+			<set-variable value="#[attributes.uriParams.nationalID]" doc:name="Set nationalID" doc:id="25ec4ebc-b7a7-47c2-97b5-09cae1a91553" variableName="nationalID" />
+		</ee:cache>
+		<flow-ref name="fetch-case-by-national-id-sub-flow"/>
+
+    <choice doc:name="Choice">
+      <when expression="#[sizeOf(payload) > 0]">
+        <ee:transform doc:name="Set Success Response">
+          <ee:message>
+            <ee:set-payload>
+              <![CDATA[
+                %dw 2.0
+                output application/json
+                ---
+                payload map (covidCase, indexOfCovidCase) -> {
+                  caseID: covidCase.case_id,
+                  source: covidCase.source,
+                  caseType: covidCase.case_type,
+                  firstName: covidCase.first_name,
+                  lastName: covidCase.last_name,
+                  phone: covidCase.phone,
+                  email: covidCase.email,
+                  dateOfBirth: covidCase.date_of_birth as String {format: "yyyy-MM-dd"},
+                  nationalID: covidCase.national_id,
+                  nationalIDType: covidCase.national_id_type,
+                  address: {
+                    streetAddress: covidCase.street_address,
+                    city: covidCase.city,
+                    state: covidCase.state,
+                    postal: covidCase.postal,
+                    country: covidCase.country
+                  },
+                  createDate: covidCase.create_date as String {format: "yyyy-MM-dd"},
+                  updateDate: covidCase.update_date as String {format: "yyyy-MM-dd"}
+                }
+              ]]>
+            </ee:set-payload>
+          </ee:message>
+        </ee:transform>
+
+        <!-- Write Success Response -->
+				<async doc:name="Async" doc:id="2824234f-5aae-45be-986f-43aef1643f01" >
+					<logger level="INFO" doc:name="Logger" doc:id="10b3decd-c3fd-4695-a0b2-4534f2eebb74" message="inside async success"/>
+					<file:write doc:name="Write" doc:id="8ce60faa-6c9c-44ef-8497-d26ec9a06186" config-ref="File_Config" path="outputFolder/response.json">
+          <file:content><![CDATA[#[payload]]]></file:content>
+        </file:write>
+				</async>
+
+      
+</when>
+      <otherwise>
+        <ee:transform doc:name="Set Not Found Response">
+          <ee:message>
+            <ee:set-payload>
+              <![CDATA[
+                %dw 2.0
+                output application/json
+                ---
+                {
+                  "code": 404,
+                  "message": "Resource not found",
+                  "description": "The server has not found anything matching the Request-URI",
+                  "dateTime": now() as String { format: "yyyy-MM-dd'T'HH:mm:ss'Z'" },
+                  "transactionId": vars.transactionId
+                }
+              ]]>
+            </ee:set-payload>
+          </ee:message>
+        </ee:transform>
+
+        <!-- Write Not Found Response -->
+				<async doc:name="Async" doc:id="cf6be9a2-e23e-46af-84fe-a8461b6bbe8c" >
+					<logger level="INFO" doc:name="Logger" doc:id="69b0569d-59d0-49c5-ab21-e4f903af9298" message="inside async failure"/>
+					<file:write doc:name="Write" doc:id="13bb6f51-e277-48ac-80c8-65134c6b0aae" config-ref="File_Config" path="outputFolder/404_response.json">
+          <file:content><![CDATA[#[payload]]]></file:content>
+        </file:write>
+				</async>
+
+      
+</otherwise>
+    </choice>
+
+    <logger level="INFO" doc:name="End Log" message="Completed flow, payload: #[payload]"/>
+  </flow>
+
+</mule>
