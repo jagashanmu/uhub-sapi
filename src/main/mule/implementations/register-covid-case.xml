@@ -27,31 +27,31 @@
                   doc:id="bd7f97e5-14f7-4319-b260-9310ca3470c8">
       <ee:message>
         <ee:set-payload><![CDATA[%dw 2.0
-output application/java
+output application/json
 var actionDate = now() as String{
     format :"yyyy-MM-dd"}
 var owner = "UHIS"
 ---
-{
-	national_id: payload.nationalID,
-	street_address: payload.address.streetAddress,
-	country: payload.address.country,
-	city: payload.address.city,
-	date_of_birth: payload.dateOfBirth,
-	case_type: payload.caseType,
-	last_name: payload.lastName,
-	source: payload.source,
-	national_id_type: payload.nationalIDType,
-	update_date: actionDate,
-	create_by: owner,
-	phone: payload.phone,
-	state: payload.address.state,
-	postal: payload.address.postal,
-	create_date: actionDate,
-	update_by: owner,
-	first_name: payload.firstName,
-	email: payload.email
-}]]></ee:set-payload>
+[{
+  national_id__c: payload.nationalID,
+  street_address__c: payload.address.streetAddress,
+  country__c: payload.address.country,
+  city__c: payload.address.city,
+  date_of_birth__c: payload.dateOfBirth,
+  case_type__c: payload.caseType,
+  last_name__c: payload.lastName,
+  source__c: payload.source,
+  national_id_type__c: payload.nationalIDType,
+  update_date__c: actionDate,
+  phone__c: payload.phone,
+  state__c: payload.address.state,
+  postal__c: payload.address.postal,
+  create_date__c: actionDate,
+  first_name__c: payload.firstName,
+  email__c: payload.email
+}]
+
+]]></ee:set-payload>
       </ee:message>
     </ee:transform>
     
@@ -67,7 +67,7 @@ var owner = "UHIS"
     <logger level="INFO"
             doc:name="End Log"
             doc:id="4f3c46c5-bbf0-4d68-8ac9-90344cd31204"
-            message="transactionID: #[vars.transactionId]], correlationID: #[vars.correlationID], message: Completed register covid case flow, payload: #[payload]"/>
+            message="transactionID: #[vars.transactionId]], correlationID: #[vars.correlationID], message: Completed register covid case flow, result: #[payload.result] , Payload:#[payload]"/>
   
   </flow>
 </mule>

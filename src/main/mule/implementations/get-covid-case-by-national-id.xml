@@ -34,31 +34,29 @@
       <when expression="#[sizeOf(payload) > 0]">
         <ee:transform doc:name="Set Success Response">
           <ee:message>
-            <ee:set-payload>
-              <![CDATA[
-                %dw 2.0
+            <ee:set-payload><![CDATA[               %dw 2.0
                 output application/json
                 ---
                 payload map (covidCase, indexOfCovidCase) -> {
-                  caseID: covidCase.case_id,
-                  source: covidCase.source,
-                  caseType: covidCase.case_type,
-                  firstName: covidCase.first_name,
-                  lastName: covidCase.last_name,
-                  phone: covidCase.phone,
-                  email: covidCase.email,
-                  dateOfBirth: covidCase.date_of_birth as String {format: "yyyy-MM-dd"},
-                  nationalID: covidCase.national_id,
-                  nationalIDType: covidCase.national_id_type,
+                  caseID: covidCase.case_id__c,
+                  source: covidCase.source__c,
+                  caseType: covidCase.case_type__c,
+                  firstName: covidCase.first_name__c,
+                  lastName: covidCase.last_name__c,
+                  phone: covidCase.phone__c,
+                  email: covidCase.email__c,
+                  dateOfBirth: covidCase.date_of_birth__c as String {format: "yyyy-MM-dd"},
+                  nationalID: covidCase.national_id__c,
+                  nationalIDType: covidCase.national_id_type__c,
                   address: {
-                    streetAddress: covidCase.street_address,
-                    city: covidCase.city,
-                    state: covidCase.state,
-                    postal: covidCase.postal,
-                    country: covidCase.country
+                    streetAddress: covidCase.street_address__c,
+                    city: covidCase.city__c,
+                    state: covidCase.state__c,
+                    postal: covidCase.postal__c,
+                    country: covidCase.country__c
                   },
-                  createDate: covidCase.create_date as String {format: "yyyy-MM-dd"},
-                  updateDate: covidCase.update_date as String {format: "yyyy-MM-dd"}
+                  createDate: covidCase.create_date__c as String {format: "yyyy-MM-dd"},
+                  updateDate: covidCase.update_date__c as String {format: "yyyy-MM-dd"}
                 }
               ]]>
             </ee:set-payload>
