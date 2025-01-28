@@ -14,16 +14,6 @@ http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mu
 	<sub-flow name="insert-covid-case-sub-flow" doc:id="5c7b886c-52e9-422b-8201-bdc2e1d11667">
         <logger level="DEBUG" doc:name="Start Log" doc:id="3de4862e-c1a6-4120-9827-c08d28405b5b" 
                 message="transactionID: #[vars.transactionId], correlationID: #[vars.correlationID], message: Before insert case database call, payload: #[payload]"/>
-        <!-- [STUDIO:"Insert Covid Case Master"]<db:insert doc:name="Insert Covid Case Master" doc:id="6fd6814e-d6f5-4411-a996-a3b465e20044" config-ref="Uhub_Database_Config" 
-                   queryTimeout="60000" queryTimeoutUnit="MILLISECONDS">
-            <db:sql><![CDATA[insert into cvd_case_master( source, case_type, first_name, last_name, phone, email, date_of_birth, national_id,national_id_type, street_address, city, state, postal, country, create_date, update_date, create_by, update_by)  values(:source, :case_type, :first_name, :last_name, :phone, :email, TO_DATE(:date_of_birth, 'YYYY-MM-DD'), :national_id, :national_id_type, :street_address, :city, :state, :postal, :country, TO_DATE(:create_date, 'YYYY-MM-DD'), TO_DATE(:update_date, 'YYYY-MM-DD'), :create_by, :update_by) 
-            &#93;&#93;></db:sql>
-            <db:input-parameters><![CDATA[#[payload&#93;&#93;&#93;></db:input-parameters>
-			<db:auto-generated-keys-column-names >
-				<db:auto-generated-keys-column-name value="CASE_ID" />
-			</db:auto-generated-keys-column-names>
-        
-</db:insert> [STUDIO] -->
 		<salesforce:create doc:name="Create" doc:id="fbc3ac4e-e017-4c06-bf2c-83284b9b7418" config-ref="Salesforce_Config" type="covid_case__c"/>
 		<logger level="DEBUG" doc:name="End Log" doc:id="ccecb54e-752b-49b3-acc0-bb06e906be18" 
                 message="transactionID: #[vars.transactionId], correlationID: #[vars.correlationID], message: Completed insert case database call"/>
@@ -32,35 +22,45 @@ http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mu
     <sub-flow name="update-covid-case-sub-flow" doc:id="4e76fa63-ae73-40b2-825e-a15127c3c300">
         <logger level="DEBUG" doc:name="Start Log" doc:id="a5e9a41d-f940-4b0f-94f5-37e37c074818" 
                 message="transactionID: #[vars.transactionId], correlationID: #[vars.correlationID], message: Before update case database call, payload: #[payload]"/>
-        <db:update doc:name="Update Covid Case Master" doc:id="6240b629-75af-4ed2-81ec-d78f33d18123" config-ref="Uhub_Database_Config">
-            <db:sql><![CDATA[update cvd_case_master set source=:source, case_type=:case_type, first_name=:first_name, last_name=:last_name, phone=:phone, email=:email, date_of_birth=TO_DATE(:date_of_birth, 'YYYY-MM-DD'), national_id=:national_id, national_id_type=:national_id_type, street_address=:street_address, city=:city, state=:state, postal=:postal, country=:country, update_date=TO_DATE(:update_date, 'YYYY-MM-DD'), create_by=:create_by, update_by=:update_by where case_id=:case_id
-            ]]></db:sql>
-            <db:input-parameters><![CDATA[#[vars.covidCasePayload]]]></db:input-parameters>
-        </db:update>
-        <logger level="DEBUG" doc:name="End Log" doc:id="f03ce054-b2f2-4081-90e2-113333542117" 
+        <salesforce:update doc:name="Update" doc:id="22481d66-776d-4e7e-8e10-0716c7dd2a93" config-ref="Salesforce_Config" type="covid_case__c">
+		</salesforce:update>
+		<logger level="DEBUG" doc:name="End Log" doc:id="f03ce054-b2f2-4081-90e2-113333542117" 
                 message="transactionID: #[vars.transactionId], correlationID: #[vars.correlationID], message: Completed update case database call"/>
     </sub-flow>
 
     <sub-flow name="fetch-case-reports-sub-flow" doc:id="bb9de1b2-799f-4bb5-970d-19de10bc440f">
         <logger level="DEBUG" doc:name="Start Log" doc:id="ecf7e63b-050b-4862-8e9a-165e70735d65" 
                 message="transactionID: #[vars.transactionId], correlationID: #[vars.correlationID], message: Before fetching case reports database call"/>
-        <db:select doc:name="Select Case Reports" doc:id="359a54af-504f-48a4-8df0-fccd6a5f9f13" config-ref="Uhub_Database_Config">
-            <db:sql><![CDATA[ #["$(vars.reportsDynamicQuery)"] ]]></db:sql>
-        </db:select>
-        <logger level="DEBUG" doc:name="End Log" doc:id="d4efa5ac-1aed-4b94-a63c-6937fdb81f14" 
+        <salesforce:query doc:name="Query" doc:id="d3f179b0-927a-41b0-bcf0-bc6a18aed876" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[SELECT 
+    case_id__c, 
+    source__c, 
+    case_type__c, 
+    first_name__c, 
+    last_name__c, 
+    phone__c, 
+    email__c, 
+    date_of_birth__c, 
+    national_id__c, 
+    national_id_type__c, 
+    street_address__c, 
+    city__c, 
+    state__c, 
+    postal__c, 
+    country__c, 
+    create_date__c, 
+    update_date__c
+FROM covid_case__c
+WHERE state__c = :state]]></salesforce:salesforce-query>
+			<salesforce:parameters ><![CDATA[#[{"state" : attributes.queryParams.'state' }]]]></salesforce:parameters>
+		</salesforce:query>
+		<logger level="DEBUG" doc:name="End Log" doc:id="d4efa5ac-1aed-4b94-a63c-6937fdb81f14" 
                 message="transactionID: #[vars.transactionId], correlationID: #[vars.correlationID], message: Completed fetch case reports database call"/>
     </sub-flow>
 
     <sub-flow name="fetch-case-by-national-id-sub-flow" doc:id="1070388c-f733-47cb-bdc9-fa62d604b70e">
         <logger level="DEBUG" doc:name="Start Log" doc:id="b7ca8d81-66f4-41e9-94e8-f57b4780606b" 
                 message="transactionID: #[vars.transactionId], correlationID: #[vars.correlationID], message: Before fetching case by national id database call"/>
-        <!-- [STUDIO:"Select Case by NationalID"]<db:select doc:name="Select Case by NationalID" doc:id="1cbdb806-76e6-48ab-ae60-94d87f814bc1" config-ref="Uhub_Database_Config">
-            <db:sql><![CDATA[select case_id, source, case_type, first_name, last_name, phone, email, date_of_birth, national_id, 
-                       national_id_type, street_address, city, state, postal, country, create_date, update_date 
-                from cvd_case_master where national_id = :national_id
-            &#93;&#93;></db:sql>
-            <db:input-parameters><![CDATA[#[{'national_id': vars.nationalID}&#93;&#93;&#93;></db:input-parameters>
-        </db:select> [STUDIO] -->
         <salesforce:query doc:name="Query" doc:id="6b808bc1-740c-4a12-8b96-cbb2522d2ec9" config-ref="Salesforce_Config">
 			<salesforce:salesforce-query ><![CDATA[SELECT 
     case_id__c, 
