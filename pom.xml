@@ -3,11 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.mycompany</groupId>
-	<artifactId>uhub-sapi-</artifactId>
+	<artifactId>uhub-sapi-j</artifactId>
 	<version>1.0.0</version>
 	<packaging>mule-application</packaging>
 
-	<name>uhub-sapi</name>
+	<name>uhub-sapi-j</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -61,10 +61,7 @@
 				<extensions>true</extensions>
 				<configuration>
 					<sharedLibraries>
-						<sharedLibrary>
-							<groupId>com.mycompany</groupId>
-							<artifactId>ojdbc6</artifactId>
-						</sharedLibrary>
+						
 					</sharedLibraries>
 					<classifier>---- select project type ----</classifier>
 				</configuration>
@@ -97,17 +94,7 @@
 			<version>1.2.7</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
-		<dependency>
-			<groupId>org.mule.connectors</groupId>
-			<artifactId>mule-db-connector</artifactId>
-			<version>1.14.13</version>
-			<classifier>mule-plugin</classifier>
-		</dependency>
-		<dependency>
-			<groupId>com.mycompany</groupId>
-			<artifactId>ojdbc6</artifactId>
-			<version>0.1</version>
-		</dependency>
+		
 		<dependency>
 			<groupId>org.mule.connectors</groupId>
 			<artifactId>mule-file-connector</artifactId>

@@ -18,37 +18,61 @@
                   doc:name="Set correlationId"
                   doc:id="a75d4abd-eece-4d6a-8df0-8b4cfbfcc263"
                   variableName="correlationId"/>
-    
-    <logger level="INFO"
+		<logger level="INFO"
             doc:name="Start Log"
             doc:id="ceff28fb-8d1f-4812-91ed-6a7d6be67ff7"
             message="transactionID: #[vars.transactionId], correlationID: #[vars.correlationId], message: Started update covid case flow, payload: #[payload]"/>
     
   <ee:transform doc:name="Prepare Covid Case Payload" doc:id="fd95843d-edf4-4134-bee5-06cd46edf51e">
-    <ee:variables>
-      <ee:set-variable variableName="covidCasePayload"><![CDATA[%dw 2.0
-output application/java
+    <ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
 ---
-{
-  case_id: payload.caseID,
-  source: payload.source default "Unknown", // Default value in case 'source' is null
-  case_type: payload.caseType,
-  first_name: payload.firstName,
-  last_name: payload.lastName,
-  phone: payload.phone,
-  email: payload.email,
-  date_of_birth: payload.dateOfBirth as String { format: "yyyy-MM-dd" },
-  national_id: payload.nationalID,
-  national_id_type: payload.nationalIDType,
-  street_address: payload.address.streetAddress,
-  city: payload.address.city,
-  state: upper(payload.address.state),
-  postal: payload.address.postal,
-  country: payload.address.country,
-  update_date: now() as String { format: "yyyy-MM-dd" },
-  create_by: "UHIS",
-  update_by: "UHIS"
-}
+[
+  {
+  	Id:payload.Id,
+    case_id__c: payload.CaseId,
+    national_id__c: payload.nationalID,
+    street_address__c: payload.address.streetAddress,
+    country__c: payload.address.country,
+    city__c: payload.address.city,
+    date_of_birth__c: payload.dateOfBirth,
+    case_type__c: payload.caseType,
+    last_name__c: payload.lastName,
+    source__c: payload.source,
+    national_id_type__c: payload.nationalIDType,
+    phone__c: payload.phone,
+    state__c: payload.address.state,
+    postal__c: payload.address.postal,
+    first_name__c: payload.firstName,
+    email__c: payload.email
+  }
+]
+]]></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+      <ee:set-variable variableName="covidCasePayload"><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    case_id__c: payload.CaseId,
+    national_id__c: payload.nationalID,
+    street_address__c: payload.address.streetAddress,
+    country__c: payload.address.country,
+    city__c: payload.address.city,
+    date_of_birth__c: payload.dateOfBirth,
+    case_type__c: payload.caseType,
+    last_name__c: payload.lastName,
+    source__c: payload.source,
+    national_id_type__c: payload.nationalIDType,
+    phone__c: payload.phone,
+    state__c: payload.address.state,
+    postal__c: payload.address.postal,
+    first_name__c: payload.firstName,
+    email__c: payload.email
+  }
+]
 ]]>
       </ee:set-variable>
     </ee:variables>
@@ -57,22 +81,16 @@ output application/java
     
     <flow-ref doc:name="update-covid-case-sub-flow" doc:id="ffa5ae75-115e-4e20-b1da-24fcbb4dcc9b" name="update-covid-case-sub-flow"/>
     
-    <ee:transform doc:name="Set Success Response" doc:id="b7b075e8-f278-48bb-abe5-06a0e35933a7">
-      <ee:message>
-        <ee:set-payload>
-          <![CDATA[
-            %dw 2.0
-            output application/json
-            ---
-            if (payload.affectedRows > 0) {
-              caseID: vars.covidCasePayload.case_id
-            } else {}
-          ]]>
-        </ee:set-payload>
-      </ee:message>
-    </ee:transform>
-    
-    <logger level="INFO"
+    <ee:transform doc:name="Transform Message" doc:id="464ba614-cf07-4a7f-ba00-5779b9670191" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO"
             doc:name="End Log"
             doc:id="f4246a2d-f45d-49a9-80e8-c3c4e167d983"
             message="transactionID: #[vars.transactionId], correlationID: #[vars.correlationId], message: Completed update covid case flow, payload: #[payload]"/>

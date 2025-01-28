@@ -6,8 +6,5 @@
 </http:listener-config>
 <apikit:config name="uhub-sapi-config" api="uhub-sapi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus"/>
 <secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="73cf8d5d-9fe0-4313-9d68-2fc9c2e2517f" file="dev.yaml" key="12345678abcdefgh"/>
-<db:config name="Uhub_Database_Config" doc:name="Database Config" doc:id="158ee60b-db39-4afc-afcd-b6b9db2f3a09">
-<db:oracle-connection host="${secure::database.uhub.host}" user="${secure::database.uhub.username}" password="${secure::database.uhub.password}" instance="${secure::database.uhub.service}" port="${secure::database.uhub.port}"/>
-</db:config>
 <api-gateway:autodiscovery apiId="20143967" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="d26473c2-9ae9-460a-82f9-a0891ae1e250" flowRef="uhub-sapi-main"/>
 </mule>
