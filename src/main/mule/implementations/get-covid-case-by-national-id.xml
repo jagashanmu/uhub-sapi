@@ -11,7 +11,6 @@
                           http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
 
   <file:config name="File_Config" doc:name="File Config" doc:id="4d9e5855-827e-47f6-84cb-399535e3a384">
-    <file:connection workingDir="C:\Users\jaga\Downloads\git-bash"/>
   </file:config>
 
   <ee:object-store-caching-strategy name="Caching_Strategy1" doc:name="Caching Strategy" doc:id="efb43a15-14bb-4d52-8ab9-f683ee1cfcf0" />
