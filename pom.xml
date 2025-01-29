@@ -2,19 +2,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.mycompany</groupId>
-	<artifactId>uhub-sapi-</artifactId>
+	<groupId>652204b7-17e6-419a-9d97-61824f30ffcf</groupId>
+	<artifactId>uhub-sapi-j</artifactId>
 	<version>1.0.0</version>
 	<packaging>mule-application</packaging>
 
-	<name>uhub-sapi</name>
-
+	<name>uhub-sapi-new</name>
+	<description>From Anypoint </description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
 		<app.runtime>4.8.0</app.runtime>
 		<mule.maven.plugin.version>4.3.0</mule.maven.plugin.version>
+		<tags/>
+		<categories>[]</categories>
+		<fields>[]</fields>
 	</properties>
 	<profiles>
 		<profile>
@@ -28,7 +31,7 @@
 						<extensions>true</extensions>
 						<configuration>
 							<cloudhub2Deployment>
-								<applicationName>product-api1</applicationName>
+								<applicationName>uhub-sapi</applicationName>
 								<environment>DEV</environment>
 								<target>Cloudhub-US-East-2</target>
 								<replicas>1</replicas>
@@ -60,12 +63,7 @@
 				<version>${mule.maven.plugin.version}</version>
 				<extensions>true</extensions>
 				<configuration>
-					<sharedLibraries>
-						<sharedLibrary>
-							<groupId>com.mycompany</groupId>
-							<artifactId>ojdbc6</artifactId>
-						</sharedLibrary>
-					</sharedLibraries>
+					<sharedLibraries/>
 					<classifier>---- select project type ----</classifier>
 				</configuration>
 			</plugin>
@@ -96,17 +94,6 @@
 			<artifactId>mule-secure-configuration-property-module</artifactId>
 			<version>1.2.7</version>
 			<classifier>mule-plugin</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.mule.connectors</groupId>
-			<artifactId>mule-db-connector</artifactId>
-			<version>1.14.13</version>
-			<classifier>mule-plugin</classifier>
-		</dependency>
-		<dependency>
-			<groupId>com.mycompany</groupId>
-			<artifactId>ojdbc6</artifactId>
-			<version>0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mule.connectors</groupId>
